@@ -8,7 +8,7 @@ main_bp = Blueprint("main")
 
 
 @main_bp.get("/")
-def index(request):
+async def index(request):
     info = """
     "{main_url}"  show all the url for this app
     """
