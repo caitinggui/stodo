@@ -4,16 +4,10 @@ from sanic import Sanic
 from sanic.response import text, json
 from sanic.exceptions import RequestTimeout, NotFound
 
+from apps import createApp
 
-app = Sanic(__name__)
 
-
-@app.get('/')
-def index(request):
-    info = """
-    "/"  show all the url for this app
-    """
-    return text(info)
+app = createApp()
 
 
 @app.exception(RequestTimeout)

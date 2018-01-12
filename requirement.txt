@@ -1,1 +1,2 @@
 sanic
+ConcurrentLogHandler==0.9.1
