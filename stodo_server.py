@@ -1,8 +1,8 @@
 # coding: utf-8
 
 import logging
+import click
 
-from sanic import Sanic
 from sanic.exceptions import RequestTimeout, NotFound
 
 from apps import createApp
@@ -29,5 +29,23 @@ def serverError(request, exception):
     return webJson(RetCode.SERVER_ERROR)
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command(help="初始化数据库")
+def initdb():
+    from apps.models import createAllTables
+    createAllTables()
+
+
+@cli.command(help="运行server")
+@click.option("--host", default="0.0.0.0")
+@click.option("--port", default=8090)
+def run(host, port):
+    app.run(host=host, port=port, debug=True)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8090, debug=True)
+    cli()
