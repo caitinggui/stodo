@@ -22,6 +22,7 @@ class RetCode:
 
     FORBIDDEN = (403, "抱歉，您权限不足")
     NOT_FOUND = (404, "无此页面")
+    REQUEST_TIMEOUT = (408, "请求超时")
     NEED_LOGIN = (401, "抱歉，您需要先登陆")
 
     # 50表示影响系统的异常
@@ -39,13 +40,13 @@ class RetCode:
         return f(result)
 
 
-def webJson(status, data=''):
+def webJson(status, data='', **kwargs):
     result = {
         RetCode.CODE: status[0],
         RetCode.MSG: status[1],
         RetCode.DATA: data
     }
-    return jsonify(result)
+    return jsonify(result, **kwargs)
 
 
 class ParamsError(Exception):

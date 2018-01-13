@@ -1,24 +1,32 @@
 # coding: utf-8
 
+import logging
+
 from sanic import Sanic
-from sanic.response import text, json
 from sanic.exceptions import RequestTimeout, NotFound
 
 from apps import createApp
+from utils import RetCode, webJson
 
 
+logger = logging.getLogger("apps")
 app = createApp()
 
 
 @app.exception(RequestTimeout)
 def timeout(request, exception):
-    return json({'message': 'Request Timeout'}, 408)
+    return webJson(RetCode.REQUEST_TIMEOUT)
 
 
 @app.exception(NotFound)
 def notfound(request, exception):
-    return json(
-        {'message': 'Requested URL {} not found'.format(request.url)}, 404)
+    return webJson(RetCode.NOT_FOUND)
+
+
+@app.exception(Exception)
+def serverError(request, exception):
+    logger.exception(exception)
+    return webJson(RetCode.SERVER_ERROR)
 
 
 if __name__ == "__main__":
