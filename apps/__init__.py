@@ -11,7 +11,7 @@ from configs import configs, log_config
 
 
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DSN = "Driver=SQLite3;Database={}".format(os.path.join(BASEDIR, "data.db"))
+DSN = "Driver=SQLite;Database={}".format(os.path.join(BASEDIR, "data.db"))
 print(DSN)
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
