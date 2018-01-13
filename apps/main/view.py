@@ -13,7 +13,13 @@ main_bp = Blueprint("main")
 @main_bp.get("/")
 async def index(request):
     main_url = app.url_for("main.index")
+    user_url = app.url_for("user.user_index")
+    regist = app.url_for("user.regist")
+    login = app.url_for("user.login")
     info = {
-        f'{main_url}': "show all the url for this app"
+        f'{main_url}': "show all the url for this app",
+        f"{user_url}": "show all users",
+        f"{regist}": "regist",
+        f"{login}": "login"
     }
-    return webJson(RetCode.SUCCESS, data=info)
+    return webJson(data=info)

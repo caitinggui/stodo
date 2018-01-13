@@ -40,10 +40,11 @@ class RetCode:
         return f(result)
 
 
-def webJson(status, data='', **kwargs):
+def webJson(mystatus=RetCode.SUCCESS, data='', **kwargs):
+    """jsonify自带有status参数，所以这里用mystatus避免冲突"""
     result = {
-        RetCode.CODE: status[0],
-        RetCode.MSG: status[1],
+        RetCode.CODE: mystatus[0],
+        RetCode.MSG: mystatus[1],
         RetCode.DATA: data
     }
     return jsonify(result, **kwargs)

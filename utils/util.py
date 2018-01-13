@@ -59,3 +59,21 @@ def dict2namedtuple(data):
     """将字典转为namedtuple，生成的数据将不可更改，比AttrDict更节约内存"""
     Form = namedtuple('Form', field_names=data.keys())
     return Form(**data)
+
+
+def requestGetParam(request, name, default=None):
+    param = request.args.get(name, default)
+    return param
+
+
+def requestPostParam(request, name, default=None):
+    param = request.form.get(name, default)
+    return param
+
+
+def requestParam(request, name, default=None):
+    if hasattr(request.args, name):
+        param = request.args.get(name)
+    else:
+        param = request.form.get(name, default)
+    return param
