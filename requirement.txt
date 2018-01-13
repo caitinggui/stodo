@@ -2,3 +2,4 @@ sanic
 peewee==2.10.2
 aioodbc
 ConcurrentLogHandler==0.9.1
+ipython

@@ -47,5 +47,12 @@ def run(host, port):
     app.run(host=host, port=port, debug=True)
 
 
+@cli.command(help="ipython命令行环境")
+def ishell():
+    from IPython import embed
+    from apps.models import User
+    embed()
+
+
 if __name__ == "__main__":
     cli()
