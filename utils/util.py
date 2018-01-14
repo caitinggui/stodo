@@ -61,18 +61,8 @@ def dict2namedtuple(data):
     return Form(**data)
 
 
-def requestGetParam(request, name, default=None):
-    param = request.args.get(name, default)
-    return param
-
-
-def requestPostParam(request, name, default=None):
-    param = request.form.get(name, default)
-    return param
-
-
 def requestParam(request, name, default=None):
-    if hasattr(request.args, name):
+    if name in request.args:
         param = request.args.get(name)
     else:
         param = request.form.get(name, default)
