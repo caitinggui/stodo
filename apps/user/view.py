@@ -31,8 +31,9 @@ async def regist(request):
             if_name_exist = await ifNameExist(cur, name)
             if if_name_exist:
                 return webJson(RetCode.PARAMETER_ERROR, data="用户名已存在")
-            await cur.execute(S.i_user, (name, password))
-            await cur.commit()
+        logger.info("start to regist")
+        await conn.execute(S.i_user, (name, password))
+        await conn.commit()
     user = {"name": name}
     return webJson(data=user)
 
@@ -43,7 +44,7 @@ async def login(request):
 
 
 async def ifNameExist(cur, username):
-    logger.debug("sql: %s", S.s_username)
+    logger.debug("sql: %s, %s", S.s_username, username)
     await cur.execute(S.s_username, (username,))
     data = await cur.fetchone()
     if data:
