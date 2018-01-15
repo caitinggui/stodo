@@ -8,7 +8,7 @@ from sanic import Sanic
 import aioodbc
 
 from configs import configs, log_config
-from utils import Constant
+from utils import Constant, createMysqlPool
 
 
 logging.config.dictConfig(log_config)
@@ -28,4 +28,4 @@ def createApp():
 
 @app.listener("before_server_start")
 async def beforeStart(app, loop):
-    app.db = await aioodbc.create_pool(dsn=Constant.dsn, loop=loop)
+    app.db = await createMysqlPool(loop, configs.get("mysql").get("mydb"))

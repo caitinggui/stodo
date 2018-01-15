@@ -7,12 +7,17 @@
 import datetime
 
 from peewee import Model, DateTimeField, IntegerField, PrimaryKeyField, \
-    CharField, SqliteDatabase, BigIntegerField, ForeignKeyField
+    CharField, MySQLDatabase, BigIntegerField, ForeignKeyField
 
 from utils import Constant
+from configs import configs
 
 
-db = SqliteDatabase(Constant.sqlitedb)
+db = MySQLDatabase(
+    database=configs["mysql"]["mydb"]["DB"],
+    user=configs["mysql"]["mydb"]["USER"],
+    password=configs["mysql"]["mydb"]["PASSWORD"],
+)
 
 
 class BaseModel(Model):
@@ -61,6 +66,6 @@ class S(object):
     user_table = User._meta.db_table
     password = User.password.db_column
 
-    s_username = f"select id, {username} from {user_table} where {username} = ? limit 1"
+    s_username = f"select id, {username} from {user_table} where {username} = %s limit 1"
     s_alluser = f"select id, {username} from {user_table}"
-    i_user = f"insert into {user_table} ({username}, {password}) values (?, ?)"
+    i_user = f"insert into {user_table} ({username}, {password}) values (%s, %s)"
