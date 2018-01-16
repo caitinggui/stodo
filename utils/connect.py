@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import aiomysql
+from aiomysql.cursors import DictCursor, Cursor
+from . import AttrDict
+
+
+class AttrDictCursor(DictCursor):
+    dict_type = AttrDict
 
 
 async def createMysqlPool(loop, config):
@@ -12,7 +18,8 @@ async def createMysqlPool(loop, config):
         user=config.get("USER"),
         password=config.get("PASSWORD"),
         db=config.get("DB"),
-        maxsize=config.get("POOLSIZE", 10)
+        maxsize=config.get("POOLSIZE", 10),
+        cursorclass=AttrDictCursor
     )
     return pool
 
