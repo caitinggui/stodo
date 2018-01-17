@@ -16,13 +16,17 @@
 
 import datetime
 import logging
+import hashlib
 
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import SignatureExpired
 from peewee import Model, DateTimeField, IntegerField, PrimaryKeyField, \
     CharField, MySQLDatabase, BigIntegerField, ForeignKeyField, TextField,\
     BooleanField, SQL, SmallIntegerField
 
 from utils import Constant, AttrDict
 from configs import configs
+from . import app
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +37,7 @@ db = MySQLDatabase(
     password=configs["mysql"]["mydb"]["PASSWORD"],
 )
 
+serializer = Serializer(app.config['SECRET_KEY'])
 
 def setDefault(default):
     return [SQL("default {}".format(default))]
@@ -69,6 +74,33 @@ class User(BaseModel):
 
     class Meta:
         db_table = 'user'
+
+    @staticmethod
+    def generalPassword(password):
+        password = bytes(password + app.config["SECRET_KEY"], encoding='utf-8')
+        hash_password = hashlib.new("md5", data=password)
+        return hash_password.hexdigest()
+
+    @staticmethod
+    def verifyPassword(password, password_hash):
+        return User.generalPassword(password) == password_hash
+
+    @staticmethod
+    def generateToken(data, expiration=600):
+        """生成token频率不高且有效期可能不同，所以serializer实时生成"""
+        s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps(data)
+
+    @staticmethod
+    def verifyToken(token):
+        """校验token不涉及到有效期，所以提前生成serializer"""
+        try:
+            data = serializer.loads(token)
+        except SignatureExpired:
+            return {}    # valid token, but expired
+        except Exception:
+            return {}    # invalid token
+        return data
 
 
 class Todo(BaseModel):

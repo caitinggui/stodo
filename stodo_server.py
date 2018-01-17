@@ -50,7 +50,8 @@ def run(host, port):
 @cli.command(help="ipython命令行环境")
 def ishell():
     from IPython import embed
-    from apps.models import User
+    from apps.models import User, Role
+    from apps import app
     embed()
 
 

@@ -4,4 +4,4 @@ from .util import str2timestamp, timestamp2str, getDay, safeInt, safeFloat, Attr
 from .decorators import ensureDone, runTime
 from .connect import RedisPool, createMysqlPool
 from .retcode import RetCode, webJson, ParamsError
-from .tabledef import *
+from .tabledef import Constant, AppConfig

@@ -10,3 +10,7 @@ class Constant(object):
     basedir = BASEDIR
     sqlitedb = os.path.join(BASEDIR, "data.db")
     dsn = "Driver=SQLite;Database={}".format(sqlitedb)
+
+
+class AppConfig(object):
+    SECRET_KEY = os.environ['SECRET_KEY']

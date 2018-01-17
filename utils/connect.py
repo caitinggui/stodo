@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import aiomysql
-from aiomysql.cursors import DictCursor, Cursor
 from . import AttrDict
 
 
-class AttrDictCursor(DictCursor):
+class AttrDictCursor(aiomysql.DictCursor):
     dict_type = AttrDict
 
 

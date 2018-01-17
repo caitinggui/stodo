@@ -8,7 +8,7 @@ from sanic import Sanic
 import aioodbc
 
 from configs import configs, log_config
-from utils import Constant, createMysqlPool
+from utils import Constant, createMysqlPool, AppConfig
 
 
 logging.config.dictConfig(log_config)
@@ -19,6 +19,7 @@ app = Sanic(__name__)
 
 
 def createApp():
+    app.config.from_object(AppConfig)
     from .user.view import user_bp
     from .main.view import main_bp
     app.blueprint(user_bp, url_prefix='/user')
