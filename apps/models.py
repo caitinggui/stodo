@@ -39,6 +39,7 @@ db = MySQLDatabase(
 
 serializer = Serializer(app.config['SECRET_KEY'])
 
+
 def setDefault(default):
     return [SQL("default {}".format(default))]
 
@@ -46,6 +47,18 @@ def setDefault(default):
 class BaseModel(Model):
     class Meta:
         database = db
+
+
+class Permission(object):
+    """权限值不是越大就越高，只是用二进制标记而已
+    通过Role绑定Permission，然后User再绑定Role来完成权限控制。
+    如果要精确到某个文章，再通过具体文章和用户的所属关系判断"""
+    ADMIN = 1     # 0b000000000000001
+    DOWNLOAD = 2  # 0b000000000000010
+    VIEW = 3
+    EDIT = 4
+    DELETE = 5
+    ADD = 6
 
 
 class Role(BaseModel):
@@ -57,9 +70,9 @@ class Role(BaseModel):
 class User(BaseModel):
     """表名都用单数"""
     id = PrimaryKeyField()
-    password = CharField(max_length=128)
     name = CharField(max_length=255, verbose_name="user's name",
                      index=True, unique=True)
+    password = CharField(max_length=128)
     # email = CharField(max_length=128, unique=True, index=True)
     # 0表示未设置
     age = SmallIntegerField(
@@ -70,10 +83,25 @@ class User(BaseModel):
     created_time = DateTimeField(default=datetime.datetime.utcnow)
     # constraints=setDefault("CURRENT_TIMESTAMP"), MySQL 5.6版本支持设置
     updated_time = DateTimeField(default=datetime.datetime.utcnow)
-    role = ForeignKeyField(Role, related_name="user")
+    role_id = BigIntegerField(verbose_name="role's primary_key")
 
     class Meta:
         db_table = 'user'
+
+    @staticmethod
+    def addPermission(perm, wanted_perm):
+        if User.checkPermission(perm, wanted_perm):
+            return perm
+        return perm + wanted_perm
+
+    @staticmethod
+    def checkPermission(perm, wanted_perm):
+        return perm & wanted_perm == perm
+
+    @staticmethod
+    def can(perm, wanted_perm):
+        return User.checkPermission(perm, wanted_perm) or\
+            User.checkPermission(perm, Permission.ADMIN)
 
     @staticmethod
     def generalPassword(password):
@@ -86,7 +114,7 @@ class User(BaseModel):
         return User.generalPassword(password) == password_hash
 
     @staticmethod
-    def generateToken(data, expiration=600):
+    def generalToken(data, expiration=600):
         """生成token频率不高且有效期可能不同，所以serializer实时生成"""
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps(data)
@@ -109,30 +137,35 @@ class Todo(BaseModel):
     title = CharField(max_length=255, index=True)
     detail = TextField(null=True, help_text="要做的事的具体内容或步骤")
     is_completed = BooleanField(constraints=setDefault(0), default=False)
-    user = ForeignKeyField(User, related_name="todo")
+    user_id = BigIntegerField(verbose_name="user's primary_key")
 
     class Meta:
         db_table = 'todo'
 
 
-def createTable(tables):
-    db.connect()
-    db.create_tables(tables)
-    db.commit()
-
-
-def createAllTables():
-    tables = [User, Role, Todo]
-    createTable(tables)
-
-
 class S(object):
     """SQL"""
 
-    username = User.name.db_column
+    @staticmethod
+    def createTable(tables):
+        db.connect()
+        db.create_tables(tables)
+        db.commit()
+
+    @staticmethod
+    def createAllTables():
+        """要根据已有的表来更新"""
+        tables = [User, Role, Todo]
+        S.createTable(tables)
+
     user_table = User._meta.db_table
+    username = User.name.db_column
     password = User.password.db_column
+    age = User.age.db_column
+    sex = User.sex.db_column
+    created_time = User.created_time.db_column
 
     s_username = f"select id, {username} from {user_table} where {username} = %s limit 1"
+    s_password = f"select id, {password} from {user_table} where {username} = %s"
     s_alluser = f"select id, {username} from {user_table}"
-    i_user = f"insert into {user_table} ({username}, {password}) values (%s, %s)"
+    i_user = f"insert into {user_table} ({username}, {password}, {age}, {sex}, {created_time}) values (%s, %s, %s, %s, %s)"

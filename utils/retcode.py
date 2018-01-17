@@ -55,3 +55,9 @@ class ParamsError(Exception):
         """这个data和返回结果的data有关"""
         super(ParamsError, self).__init__(self, *args, **kwargs)
         self.data = data
+
+
+class TokenError(Exception):
+    def __init__(self, data=None, *args, **kwargs):
+        super(ParamsError, self).__init__(self, *args, **kwargs)
+        self.data = data

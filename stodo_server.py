@@ -6,7 +6,7 @@ import click
 from sanic.exceptions import RequestTimeout, NotFound
 
 from apps import createApp
-from utils import RetCode, webJson
+from utils import RetCode, webJson, ParamsError
 
 
 logger = logging.getLogger("apps")
@@ -23,6 +23,11 @@ def notfound(request, exception):
     return webJson(RetCode.NOT_FOUND)
 
 
+@app.exception(ParamsError)
+def paramsError(request, exception):
+    return webJson(RetCode.PARAMETER_ERROR, data=exception.data)
+
+
 @app.exception(Exception)
 def serverError(request, exception):
     logger.exception(exception)
@@ -36,8 +41,8 @@ def cli():
 
 @cli.command(help="初始化数据库")
 def initdb():
-    from apps.models import createAllTables
-    createAllTables()
+    from apps.models import S
+    S.createAllTables()
 
 
 @cli.command(help="运行server")
