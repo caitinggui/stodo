@@ -1,0 +1,5 @@
+[flake8]
+max_line_length: 95
+ignore =
+  E401,
+  # multiple imports on one line
