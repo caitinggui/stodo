@@ -24,7 +24,7 @@ from peewee import Model, DateTimeField, IntegerField, PrimaryKeyField, \
     CharField, MySQLDatabase, BigIntegerField, ForeignKeyField, TextField,\
     BooleanField, SQL, SmallIntegerField
 
-from utils import Constant, AttrDict
+from utils import Constant, AttrDict, TokenError
 from configs import configs
 from . import app
 
@@ -65,6 +65,7 @@ class Role(BaseModel):
     id = PrimaryKeyField()
     name = CharField(max_length=255, unique=True, index=True)
     permission = BigIntegerField(default=0, constraints=setDefault(0))
+    is_deleted = BooleanField(default=0, constraints=setDefault(0))
 
 
 class User(BaseModel):
@@ -84,6 +85,7 @@ class User(BaseModel):
     # constraints=setDefault("CURRENT_TIMESTAMP"), MySQL 5.6版本支持设置
     updated_time = DateTimeField(default=datetime.datetime.utcnow)
     role_id = BigIntegerField(verbose_name="role's primary_key")
+    is_deleted = BooleanField(default=0, constraints=setDefault(0))
 
     class Meta:
         db_table = 'user'
@@ -125,9 +127,9 @@ class User(BaseModel):
         try:
             data = serializer.loads(token)
         except SignatureExpired:
-            return {}    # valid token, but expired
+            raise TokenError("token已过期")  # valid token, but expired
         except Exception:
-            return {}    # invalid token
+            raise TokenError("非法token")    # invalid token
         return data
 
 
@@ -138,6 +140,7 @@ class Todo(BaseModel):
     detail = TextField(null=True, help_text="要做的事的具体内容或步骤")
     is_completed = BooleanField(constraints=setDefault(0), default=False)
     user_id = BigIntegerField(verbose_name="user's primary_key")
+    is_deleted = BooleanField(default=0, constraints=setDefault(0))
 
     class Meta:
         db_table = 'todo'
@@ -158,6 +161,9 @@ class S(object):
         tables = [User, Role, Todo]
         S.createTable(tables)
 
+    is_completed = Todo.is_completed.db_column
+    is_deleted = Todo.is_deleted.db_column
+
     user_table = User._meta.db_table
     username = User.name.db_column
     password = User.password.db_column
@@ -165,7 +171,19 @@ class S(object):
     sex = User.sex.db_column
     created_time = User.created_time.db_column
 
+    todo_table = Todo._meta.db_table
+    title = Todo.title.db_column
+    detail = Todo.detail.db_column
+    user_id = Todo.user_id.db_column
+
+    # s表示select, i表示insert
     s_username = f"select id, {username} from {user_table} where {username} = %s limit 1"
     s_password = f"select id, {password} from {user_table} where {username} = %s"
     s_alluser = f"select id, {username} from {user_table}"
+    s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted != 1"
+    s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} != 1 and id = %s"
+
     i_user = f"insert into {user_table} ({username}, {password}, {age}, {sex}, {created_time}) values (%s, %s, %s, %s, %s)"
+    i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}) values (%s, %s, %s)"
+
+    d_user_todo = f"delete from {todo_table} where id=%s"

@@ -24,6 +24,8 @@ class RetCode:
     NOT_FOUND = (404, "无此页面")
     REQUEST_TIMEOUT = (408, "请求超时")
     NEED_LOGIN = (401, "抱歉，您需要先登陆")
+    AUTH_HEADER_ERROR = (4001, "认证header有误")
+    TOKEN_ERROR = (4002, "token错误")
 
     # 50表示影响系统的异常
     REDIS_ERROR = (5001, "redis出错")
@@ -59,5 +61,5 @@ class ParamsError(Exception):
 
 class TokenError(Exception):
     def __init__(self, data=None, *args, **kwargs):
-        super(ParamsError, self).__init__(self, *args, **kwargs)
+        super(TokenError, self).__init__(self, *args, **kwargs)
         self.data = data

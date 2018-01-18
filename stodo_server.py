@@ -3,10 +3,10 @@
 import logging
 import click
 
-from sanic.exceptions import RequestTimeout, NotFound
+from sanic.exceptions import RequestTimeout, NotFound, InvalidUsage
 
 from apps import createApp
-from utils import RetCode, webJson, ParamsError
+from utils import RetCode, webJson, ParamsError, TokenError
 
 
 logger = logging.getLogger("apps")
@@ -23,9 +23,19 @@ def notfound(request, exception):
     return webJson(RetCode.NOT_FOUND)
 
 
+@app.exception(InvalidUsage)
+def invalidUsage(request, exception):
+    return webJson(RetCode.NOT_FOUND, data="请求方法有误")
+
+
 @app.exception(ParamsError)
 def paramsError(request, exception):
     return webJson(RetCode.PARAMETER_ERROR, data=exception.data)
+
+
+@app.exception(TokenError)
+def paramsError(request, exception):
+    return webJson(RetCode.TOKEN_ERROR, data=exception.data)
 
 
 @app.exception(Exception)
