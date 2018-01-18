@@ -16,15 +16,8 @@ def login_required(func):
 
     @functools.wraps(func)
     async def decorated(request, *args, **kwargs):
-        header = request.headers.get("Authorization")
-        if header:
-            try:
-                prefix, token = header.split(' ')
-                if prefix != "Bearer":
-                    return webJson(RetCode.AUTH_HEADER_ERROR)
-            except Exception:
-                return webJson(RetCode.AUTH_HEADER_ERROR)
-            user_info = User.verifyToken(token)
+        if request.token:
+            user_info = User.verifyToken(request.token)
             kwargs[Constant.auth_info] = user_info
             response = await func(request, *args, **kwargs)
             return response
