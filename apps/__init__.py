@@ -23,8 +23,8 @@ def createApp():
     from .user.view import user_bp
     from .main.view import main_bp
     from .todo.view import todo_bp
-    app.blueprint(user_bp, url_prefix='/user')
-    app.blueprint(todo_bp, url_prefix='/todo')
+    app.blueprint(user_bp, url_prefix='/users')
+    app.blueprint(todo_bp, url_prefix='/todos')
     app.blueprint(main_bp)
     return app
 

@@ -170,6 +170,7 @@ class S(object):
     age = User.age.db_column
     sex = User.sex.db_column
     created_time = User.created_time.db_column
+    updated_time = User.updated_time.db_column
 
     todo_table = Todo._meta.db_table
     title = Todo.title.db_column
@@ -180,6 +181,7 @@ class S(object):
     s_username = f"select id, {username} from {user_table} where {username} = %s limit 1"
     s_password = f"select id, {password} from {user_table} where {username} = %s"
     s_alluser = f"select id, {username} from {user_table}"
+    s_user_info = f"select id, {username}, {age}, {sex}, {created_time}, {updated_time} from {user_table} where id=%s"
     s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted != 1"
     s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} != 1 and id = %s"
 
@@ -187,3 +189,4 @@ class S(object):
     i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}) values (%s, %s, %s)"
 
     d_user_todo = f"delete from {todo_table} where id=%s"
+    d_user = f"delete from {user_table} where id=%s"
