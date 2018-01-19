@@ -18,7 +18,8 @@ def login_required(func):
     async def decorated(request, *args, **kwargs):
         if request.token:
             user_info = User.verifyToken(request.token)
-            kwargs[Constant.auth_info] = user_info
+            # 每个http请求的request都是不同的，所以可以用来保存该次请求中的全局变量
+            request[Constant.auth_info] = user_info
             response = await func(request, *args, **kwargs)
             return response
         else:
