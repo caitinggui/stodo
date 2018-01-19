@@ -13,15 +13,13 @@ main_bp = Blueprint("main")
 @main_bp.get("/")
 async def index(request):
     main_url = app.url_for("main.index")
-    user_url = app.url_for("user.user_index")
-    regist = app.url_for("user.regist")
-    login = app.url_for("user.login")
+    users = app.url_for("user.UserListView")
+    user = app.url_for("user.UserView")
     todos = app.url_for("todo.TodoListView")
     info = {
         f'{main_url}': "show all the url for this app",
-        f"{user_url}": "show all users",
-        f"{regist}": "regist",
-        f"{login}": "login",
-        f"{todos}": "all todos for you"
+        f"{users}": "POST: 注册",
+        f"{user}": "POST: 登陆; GET: 查看当前用户信息; PUT: 更新用户信息, DELETE: 注销用户, 非登出",
+        f"{todos}": "所有计划的事情"
     }
     return webJson(data=info)
