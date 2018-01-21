@@ -35,6 +35,7 @@ db = MySQLDatabase(
     database=configs["mysql"]["mydb"]["DB"],
     user=configs["mysql"]["mydb"]["USER"],
     password=configs["mysql"]["mydb"]["PASSWORD"],
+    charset='utf8'
 )
 
 serializer = Serializer(app.config['SECRET_KEY'])
@@ -63,7 +64,7 @@ class Permission(object):
 
 class Role(BaseModel):
     id = PrimaryKeyField()
-    name = CharField(max_length=255, unique=True, index=True)
+    name = CharField(max_length=128, index=True, unique=True)
     permission = BigIntegerField(default=0, constraints=setDefault(0))
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
 
@@ -71,7 +72,8 @@ class Role(BaseModel):
 class User(BaseModel):
     """表名都用单数"""
     id = PrimaryKeyField()
-    name = CharField(max_length=255, verbose_name="user's name",
+    # 如果数据库字符为utf8mb4，max_length=255会报错，因为innod引擎仅支持小于755bytes的列建立索引，使用utf8没这个问题
+    name = CharField(max_length=128, verbose_name="user's name",
                      index=True, unique=True)
     password = CharField(max_length=128)
     # email = CharField(max_length=128, unique=True, index=True)
@@ -136,7 +138,7 @@ class User(BaseModel):
 class Todo(BaseModel):
     """要做的事情"""
     id = PrimaryKeyField()
-    title = CharField(max_length=255, index=True)
+    title = CharField(max_length=255)
     detail = TextField(null=True, help_text="要做的事的具体内容或步骤")
     is_completed = BooleanField(constraints=setDefault(0), default=False)
     user_id = BigIntegerField(verbose_name="user's primary_key")
