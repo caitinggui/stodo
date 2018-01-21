@@ -7,7 +7,8 @@ configs = {
             "PORT": 3306,
             "USER": "user",
             "PASSWORD": "password",
-            "POOLSIZE": 30
+            "POOLSIZE": 30,
+            "DB": "Stodo"
         }
     },
     "mongodb": {
