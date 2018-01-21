@@ -15,7 +15,7 @@ logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 
 
-app = Sanec(__name__)
+app = Sanic(__name__)
 
 
 def createApp():
