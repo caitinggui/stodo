@@ -86,7 +86,7 @@ class User(BaseModel):
     created_time = DateTimeField(default=datetime.datetime.utcnow)
     # constraints=setDefault("CURRENT_TIMESTAMP"), MySQL 5.6版本支持设置
     updated_time = DateTimeField(default=datetime.datetime.utcnow)
-    role_id = BigIntegerField(verbose_name="role's primary_key")
+    role_id = BigIntegerField(default=0, constraints=setDefault(0), verbose_name="role's primary_key")
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
 
     class Meta:
@@ -187,7 +187,7 @@ class S(object):
     s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted != 1"
     s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} != 1 and id = %s"
 
-    i_user = f"insert into {user_table} ({username}, {password}, {age}, {sex}, {created_time}) values (%s, %s, %s, %s, %s)"
+    i_user = f"insert into {user_table} ({username}, {password}, {age}, {sex}, {created_time}, {updated_time}) values (%s, %s, %s, %s, %s, %s)"
     i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}) values (%s, %s, %s)"
 
     d_user_todo = f"delete from {todo_table} where id=%s"

@@ -96,6 +96,7 @@ class UserListView(BaseView):
         age = requestParam(request, "age", User.age.default)
         sex = requestParam(request, "sex", User.sex.choices.unknown)
         created_time = datetime.datetime.now()
+        updated_time = datetime.datetime.now()
         logger.info("args: %s", request.args)
         async with request.app.db.acquire() as conn:
             async with conn.cursor() as cur:
@@ -104,7 +105,8 @@ class UserListView(BaseView):
                     return webJson(RetCode.PARAMETER_ERROR, data="用户名已存在")
                 logger.info("start to regist")
                 password = User.generalPassword(password)
-                await cur.execute(S.i_user, (name, password, age, sex, created_time))
+                await cur.execute(
+                    S.i_user, (name, password, age, sex, created_time, updated_time))
             await conn.commit()
         user = {"name": name}
         return webJson(data=user)
