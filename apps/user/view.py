@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 user_bp = Blueprint("user")
 
 
-class UserView(BaseView):
+class TokenView(BaseView):
 
     # TODO 还需添加管理员判断
     def ifOwnerOrAdmin(self, user_id, real_user_id):
@@ -25,7 +25,7 @@ class UserView(BaseView):
     @staticmethod
     @login_required
     async def get(request, **kwargs):
-        """获取单个用户的信息"""
+        """获取登陆信息"""
         real_user_id = request[Constant.auth_info][Constant.user_id]
         return webJson(data=request.get(Constant.auth_info))
         self.ifOwnerOrAdmin(user_id, real_user_id)
@@ -60,7 +60,7 @@ class UserView(BaseView):
     @staticmethod
     @login_required
     async def delete(request, **kwargs):
-        """注销，并非登出"""
+        """登出"""
         real_user_id = request[Constant.auth_info][Constant.user_id]
         self.ifOwnerOrAdmin(user_id, real_user_id)
         async with request.app.db.acquire() as conn:
@@ -72,7 +72,7 @@ class UserView(BaseView):
     @staticmethod
     @login_required
     async def put(request, **kwargs):
-        """修改用户信息"""
+        """修改登陆信息"""
         pass
 
 
@@ -111,6 +111,18 @@ class UserListView(BaseView):
         user = {"name": name}
         return webJson(data=user)
 
+    @staticmethod
+    @login_required
+    async def delete(reques, **kwargs):
+        """注销，非登出"""
+        pass
+
+    @staticmethod
+    @login_required
+    async def put(request, **kwargs):
+        """更新用户信息"""
+        pass
+
 
 async def ifNameExist(cur, username):
     logger.debug("sql: %s, %s", S.s_username, username)
@@ -121,5 +133,5 @@ async def ifNameExist(cur, username):
     return False
 
 
-user_bp.add_route(UserView.as_view(), '/user')
 user_bp.add_route(UserListView.as_view(), "/")
+user_bp.add_route(TokenView.as_view(), '/token')
