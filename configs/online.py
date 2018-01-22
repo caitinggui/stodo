@@ -7,7 +7,7 @@ configs = {
         "mydb": {
             "HOST": "127.0.0.1",
             "PORT": 3306,
-            "USER": "user",
+            "USER": "root",
             "PASSWORD": os.environ.get("MYSQL_PASSWORD", "password"),
             "POOLSIZE": 30,
             "DB": "Stodo"
@@ -36,7 +36,7 @@ configs = {
 
 log_config = {
     "version": 1,
-    "disable_existing_loggers": True,  # other loggers can log to root
+    "disable_existing_loggers": False,  # other loggers can log to root
     "handlers": {
         "console": {
             "formatter": "simple",

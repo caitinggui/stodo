@@ -36,7 +36,7 @@ configs = {
 
 log_config = {
     "version": 1,
-    "disable_existing_loggers": True,  # other loggers can log to root
+    "disable_existing_loggers": False,  # other loggers can log to root
     "handlers": {
         "console": {
             "formatter": "simple",
