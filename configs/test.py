@@ -1,12 +1,14 @@
 # coding: utf-8
 
+import os
+
 configs = {
     "mysql": {
         "mydb": {
             "HOST": "127.0.0.1",
             "PORT": 3306,
             "USER": "root",
-            "PASSWORD": "password",
+            "PASSWORD": os.environ.get("MYSQL_PASSWORD", "password"),
             "POOLSIZE": 30,
             "DB": "Stodo"
         }
