@@ -59,7 +59,7 @@ def initdb():
 @click.option("--host", default="0.0.0.0")
 @click.option("--port", default=8090)
 def run(host, port):
-    app.run(host=host, port=port, debug=True)
+    app.run(host=host, port=port, debug=True, access_log=False)
 
 
 @cli.command(help="ipython命令行环境")
