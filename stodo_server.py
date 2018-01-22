@@ -56,10 +56,11 @@ def initdb():
 
 
 @cli.command(help="运行server")
-@click.option("--host", default="0.0.0.0")
-@click.option("--port", default=8090)
-def run(host, port):
-    app.run(host=host, port=port, debug=True, access_log=False)
+@click.option("--host", default="0.0.0.0", help="The interface to bind to.")
+@click.option("--port", default=8090, help="The port to bind to.")
+@click.option('--debug/--no-debug', default=True, help='Run under debug or not.')
+def run(host, port, debug):
+    app.run(host=host, port=port, debug=debug, access_log=False)
 
 
 @cli.command(help="ipython命令行环境")
