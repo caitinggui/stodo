@@ -119,7 +119,9 @@ class User(BaseModel):
 
     @staticmethod
     def generalToken(data, expiration=600):
-        """生成token频率不高且有效期可能不同，所以serializer实时生成"""
+        """生成token频率不高且有效期可能不同，所以serializer实时生成
+        expiration 为None时使用itsdangerous自带的时间，默认为3600
+        """
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps(data)
 

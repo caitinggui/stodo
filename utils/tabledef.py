@@ -13,6 +13,8 @@ class Constant(object):
     # 存在token中的键，值为用户id
     user_id = "id"
 
+    expires_in_login = 60 * 60 * 2400  # 2400 hours
+
 
 class AppConfig(object):
     SECRET_KEY = os.environ['SECRET_KEY']

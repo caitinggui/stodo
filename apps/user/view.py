@@ -50,8 +50,7 @@ class TokenView(BaseView):
                 logger.debug(User.generalPassword(password))
                 if User.verifyPassword(password, sql_data.password):
                     data = {Constant.user_id: sql_data.id}
-                    # None表示永不过期，这里用于debug阶段
-                    data = User.generalToken(data, expiration=None)
+                    data = User.generalToken(data, expiration=Constant.expires_in_login)
                     return webJson(data=data)
                 else:
                     return webJson(RetCode.PARAMETER_ERROR, data="用户名或者密码错误")
