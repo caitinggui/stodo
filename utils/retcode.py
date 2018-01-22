@@ -32,6 +32,7 @@ class RetCode:
     REDIS_ERROR = (500, 5001, "redis出错")
     MONGO_ERROR = (500, 5002, "mongo连接出错")
     SERVER_ERROR = (500, 500, "服务器错误, 紧急修复中...")
+    INCOMPLETE = (501, 501, "此方法暂不可使用")
 
     @staticmethod
     def retBase(f, d, e):

@@ -20,6 +20,11 @@ def timestamp2str(d, f="%Y-%m-%d %H:%M:%S"):
     return time.strftime(f, x)
 
 
+# datetime格式时间转字符串
+def datetime2str(d, f="%Y-%m-%d %H:%M:%S"):
+    return d.strftime(f)
+
+
 def safeInt(num, default=None):
     try:
         return int(num)

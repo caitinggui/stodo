@@ -42,6 +42,8 @@ serializer = Serializer(app.config['SECRET_KEY'])
 
 
 def setDefault(default):
+    if default == "":
+        default = "''"
     return [SQL("default {}".format(default))]
 
 
@@ -65,8 +67,11 @@ class Permission(object):
 class Role(BaseModel):
     id = PrimaryKeyField()
     name = CharField(max_length=128, index=True, unique=True)
+    description = CharField(max_length=255, default='', constraints=setDefault(""))
     permission = BigIntegerField(default=0, constraints=setDefault(0))
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
+    created_time = DateTimeField(default=datetime.datetime.now)
+    updated_time = DateTimeField(default=datetime.datetime.now)
 
 
 class User(BaseModel):
@@ -76,18 +81,25 @@ class User(BaseModel):
     name = CharField(max_length=128, verbose_name="user's name",
                      index=True, unique=True)
     password = CharField(max_length=128)
-    # email = CharField(max_length=128, unique=True, index=True)
+    email = CharField(default="", max_length=128, unique=True, index=True, constraints=setDefault(""))
     # 0表示未设置
-    age = SmallIntegerField(
-        default=0, constraints=setDefault(0), verbose_name="user's age")
+    age = SmallIntegerField(default=0, constraints=setDefault(0))
     # 用"<3"就可以过滤出已填性别的人
     sex = SmallIntegerField(choices=AttrDict(male=1, female=2, unknown=3))
-    # city = CharField(verbose_name='city for user')
-    created_time = DateTimeField(default=datetime.datetime.utcnow)
+    city = CharField(default="", max_length=32, constraints=setDefault(""), verbose_name='city for user')
+    # 个性签名
+    signature = CharField(default="", constraints=setDefault(""), max_length=255)
+
+    created_time = DateTimeField(default=datetime.datetime.now)
     # constraints=setDefault("CURRENT_TIMESTAMP"), MySQL 5.6版本支持设置
-    updated_time = DateTimeField(default=datetime.datetime.utcnow)
-    role_id = BigIntegerField(default=0, constraints=setDefault(0), verbose_name="role's primary_key")
+    updated_time = DateTimeField(default=datetime.datetime.now)
+    last_login = DateTimeField(default=datetime.datetime.now)
+    # 是否删除
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
+    # 是否已激活,现在默认都已激活
+    is_actived = BooleanField(default=1, constraints=setDefault(1))
+
+    role_id = BigIntegerField(default=0, constraints=setDefault(0), verbose_name="role's primary_key")
 
     class Meta:
         db_table = 'user'
@@ -101,6 +113,10 @@ class User(BaseModel):
     @staticmethod
     def checkPermission(perm, wanted_perm):
         return perm & wanted_perm == perm
+
+    @staticmethod
+    def checkIfAdmin(perm):
+        return User.checkPermission(perm, Permission.ADMIN)
 
     @staticmethod
     def can(perm, wanted_perm):
@@ -143,8 +159,15 @@ class Todo(BaseModel):
     title = CharField(max_length=255)
     detail = TextField(null=True, help_text="要做的事的具体内容或步骤")
     is_completed = BooleanField(constraints=setDefault(0), default=False)
-    user_id = BigIntegerField(verbose_name="user's primary_key")
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
+
+    created_time = DateTimeField(default=datetime.datetime.now)
+    # constraints=setDefault("CURRENT_TIMESTAMP"), MySQL 5.6版本支持设置
+    updated_time = DateTimeField(default=datetime.datetime.now)
+    # 修改次数
+    edit_num = IntegerField(default=0, constraints=setDefault(0))
+
+    user_id = BigIntegerField(verbose_name="user's primary_key")
 
     class Meta:
         db_table = 'todo'
@@ -171,26 +194,37 @@ class S(object):
     user_table = User._meta.db_table
     username = User.name.db_column
     password = User.password.db_column
+    email = User.email.db_column
     age = User.age.db_column
     sex = User.sex.db_column
+    city = User.city.db_column
+    signature = User.signature.db_column
     created_time = User.created_time.db_column
     updated_time = User.updated_time.db_column
+    last_login = User.last_login.db_column
+    role_id = User.role_id.db_column
 
     todo_table = Todo._meta.db_table
     title = Todo.title.db_column
     detail = Todo.detail.db_column
     user_id = Todo.user_id.db_column
+    edit_num = Todo.edit_num.db_column
+
+    role_table = Role._meta.db_table
+    permission = Role.permission.db_column
 
     # s表示select, i表示insert
-    s_username = f"select id, {username} from {user_table} where {username} = %s limit 1"
-    s_password = f"select id, {password} from {user_table} where {username} = %s"
-    s_alluser = f"select id, {username} from {user_table}"
-    s_user_info = f"select id, {username}, {age}, {sex}, {created_time}, {updated_time} from {user_table} where id=%s"
-    s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted != 1"
-    s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} != 1 and id = %s"
+    s_username = f"select id, {username} from {user_table} where {username} = %s and {is_deleted}=0"
+    s_password = f"select id, {password} from {user_table} where ({username}=%s or {email}=%s) and {is_deleted}=0"
+    s_alluser = f"select id, {username} from {user_table} and {is_deleted}=0"
+    s_user_info = f"select id, {username}, {age}, {sex}, {city}, {signature}, {created_time}, {updated_time}, {last_login} from {user_table} where id=%s and {is_deleted}=0"
+    s_user_login_info = f"select id, {last_login} from {user_table} where id=%s"
+    s_user_permission = f"select {permission} from {role_table} A, {user_table} B where A.id=B.{role_id} and B.id=%s"
+    s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted = 0"
+    s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} = 0 and id = %s"
 
-    i_user = f"insert into {user_table} ({username}, {password}, {age}, {sex}, {created_time}, {updated_time}) values (%s, %s, %s, %s, %s, %s)"
-    i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}) values (%s, %s, %s)"
+    i_user = f"insert into {user_table} ({username}, {password}, {email}, {age}, {sex}, {city}, {signature}, {created_time}, {updated_time}, {last_login}) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}, {created_time}, {updated_time}) values (%s, %s, %s, %s, %s)"
 
-    d_user_todo = f"delete from {todo_table} where id=%s"
-    d_user = f"delete from {user_table} where id=%s"
+    d_user_todo = f"update {todo_table} set {is_deleted}=1 where id=%s"
+    d_user = f"update {user_table} set {is_deleted}=1 where id=%s"

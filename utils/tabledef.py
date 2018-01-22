@@ -14,6 +14,9 @@ class Constant(object):
     user_id = "id"
 
     expires_in_login = 60 * 60 * 2400  # 2400 hours
+    password_min_length = 8
+    password_max_length = 32
+    age_range = (0, 120)
 
 
 class AppConfig(object):
