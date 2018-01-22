@@ -1,6 +1,8 @@
 # stodo
 A web based on sanic and made for todo list management.
 
+一个基于sanic，aiomysql的纯api web，实现用户、用户权限、todo管理。
+
 ## 部署说明
 
 - 创建虚拟环境(指定为python3.4+)： `$ virtualenv --python=python3 env`
@@ -16,3 +18,8 @@ A web based on sanic and made for todo list management.
 - `export alias "stodo"="python /your/path/to/stodo_server.py"`  # 可以使用`$ stodo initdb`来初始化数据库
 - `export SECRET_KEY='your secret key'`  # 不要在配置中直接写，容易暴露
 - `export MYSQL_PASSWORD='your password'`
+
+## TODO
+- 添加基于react的前端
+- 完善注册和权限管理
+- 添加用户组，一组用户可以共同完成一系列的todo
