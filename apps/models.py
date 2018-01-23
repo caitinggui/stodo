@@ -62,6 +62,7 @@ class Permission(object):
     EDIT = 4
     DELETE = 5
     ADD = 6
+    COMMENT = 7
 
 
 class Role(BaseModel):
@@ -72,6 +73,15 @@ class Role(BaseModel):
     is_deleted = BooleanField(default=0, constraints=setDefault(0))
     created_time = DateTimeField(default=datetime.datetime.now)
     updated_time = DateTimeField(default=datetime.datetime.now)
+
+    @staticmethod
+    def initAdmin():
+        role = Role.create(name="admin", description="super admin", permission=Permission.ADMIN)
+        return role
+
+    class Meta:
+        db_table = 'role'
+
 
 
 class User(BaseModel):
@@ -224,7 +234,7 @@ class S(object):
     s_user_todos = f"select id, {title}, {detail}, {is_completed}, {created_time}, {updated_time}, {edit_num} from {todo_table} where {user_id}=%s and {is_deleted}=0"
     s_user_todo = f"select id, {title}, {detail}, {is_completed}, {created_time}, {updated_time}, {edit_num} from {todo_table} where {user_id}=%s and {is_deleted}=0 and id=%s"
     s_todo_title = f"select id, {title} from {todo_table} where title=%s and {user_id}=%s and {is_deleted}=0"
-    s_all_todo = f"select id, A.{title}, A.{detail}, A.{created_time}, A.{updated_time}, A.{edit_num}, B.{username} from {todo_table} A {user_table} B where A.{user_id}=B.id and {is_deleted}=0 group by B.{username}"
+    s_all_todo = f"select A.id, A.{title}, A.{detail}, A.{created_time}, A.{updated_time}, A.{edit_num}, B.{username} from {todo_table} A, {user_table} B where A.{user_id}=B.id and A.{is_deleted}=0 and B.{is_deleted}=0 order by B.id"
 
     i_user = f"insert into {user_table} ({username}, {password}, {email}, {age}, {sex}, {city}, {signature}, {created_time}, {updated_time}, {last_login}) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}, {created_time}, {updated_time}) values (%s, %s, %s, %s, %s)"

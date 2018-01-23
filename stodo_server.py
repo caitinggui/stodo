@@ -51,8 +51,28 @@ def cli():
 
 @cli.command(help="初始化数据库")
 def initdb():
-    from apps.models import S
+    from apps.models import S, Role
     S.createAllTables()
+    Role.initAdmin()
+
+
+@cli.command("createSuperUser", help="创建超级管理员账号")
+def createSuperUser():
+    from apps.models import User, Role
+    from apps.forms import checkEmail, checkUsername, checkPassword
+    # 从数据库绑定admin id
+    role_admin = Role.select(Role.id).where(Role.name=="admin").get().id
+    if not role_admin:
+        return("必须先在Role表中创建管理员角色")
+    email = click.prompt("请输入邮箱")
+    checkEmail(email)
+    name = click.prompt("请输入用户名")
+    checkUsername(name)
+    password = click.prompt("请输入密码", hide_input=True, confirmation_prompt=True)
+    checkPassword(password)
+    password = User.generalPassword(password)
+    User.create(email=email, name=name, password=password, sex=User.sex.choices.unknown, role_id=role_admin, signature="I am super admin")
+    print("成功创建超级管理员账户；%s" % name)
 
 
 @cli.command(help="运行server")

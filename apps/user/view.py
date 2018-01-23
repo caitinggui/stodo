@@ -44,7 +44,6 @@ class TokenView(BaseView):
                 sql_data = await cur.fetchone()
                 if not sql_data:
                     return webJson(RetCode.PARAMETER_ERROR, data="无此用户")
-                logger.debug("sql data: %s", sql_data)
                 if User.verifyPassword(password, sql_data.password):
                     data = {Constant.user_id: sql_data.id}
                     data = User.generalToken(data, expiration=Constant.expires_in_login)

@@ -4,7 +4,7 @@ import logging
 
 from sanic import Blueprint
 from .. import app
-from ..models import S
+from ..models import S, User
 from ..auth import login_required
 from ..baseview import BaseView
 from .forms import postTodoListView
