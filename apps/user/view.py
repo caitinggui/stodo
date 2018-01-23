@@ -47,6 +47,8 @@ class TokenView(BaseView):
                 if User.verifyPassword(password, sql_data.password):
                     data = {Constant.user_id: sql_data.id}
                     data = User.generalToken(data, expiration=Constant.expires_in_login)
+                    await cur.execute(S.u_user_login, (User.last_login.default(), sql_data.id))
+                    await conn.commit()
                     return webJson(data=data)
                 else:
                     return webJson(RetCode.PARAMETER_ERROR, data="用户名或者密码错误")

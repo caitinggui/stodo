@@ -241,3 +241,5 @@ class S(object):
 
     d_user_todo = f"update {todo_table} set {is_deleted}=1 where id=%s"
     d_user = f"update {user_table} set {is_deleted}=1 where id=%s"
+
+    u_user_login = f"update {user_table} set {last_login}=%s where id=%s"
