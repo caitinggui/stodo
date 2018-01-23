@@ -213,15 +213,18 @@ class S(object):
     role_table = Role._meta.db_table
     permission = Role.permission.db_column
 
-    # s表示select, i表示insert
-    s_username = f"select id, {username} from {user_table} where {username} = %s and {is_deleted}=0"
+    # s表示select, i表示insert, d为删除(设置is_delete为1), u为更新
+    s_username = f"select id, {username} from {user_table} where {username}=%s and {is_deleted}=0"
     s_password = f"select id, {password} from {user_table} where ({username}=%s or {email}=%s) and {is_deleted}=0"
     s_alluser = f"select id, {username} from {user_table} and {is_deleted}=0"
     s_user_info = f"select id, {username}, {age}, {sex}, {city}, {signature}, {created_time}, {updated_time}, {last_login} from {user_table} where id=%s and {is_deleted}=0"
     s_user_login_info = f"select id, {last_login} from {user_table} where id=%s"
     s_user_permission = f"select {permission} from {role_table} A, {user_table} B where A.id=B.{role_id} and B.id=%s"
-    s_user_todos = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and is_deleted = 0"
-    s_user_todo = f"select id, {title}, {detail}, {is_completed} from {todo_table} where {user_id} = %s and {is_deleted} = 0 and id = %s"
+
+    s_user_todos = f"select id, {title}, {detail}, {is_completed}, {created_time}, {updated_time}, {edit_num} from {todo_table} where {user_id}=%s and {is_deleted}=0"
+    s_user_todo = f"select id, {title}, {detail}, {is_completed}, {created_time}, {updated_time}, {edit_num} from {todo_table} where {user_id}=%s and {is_deleted}=0 and id=%s"
+    s_todo_title = f"select id, {title} from {todo_table} where title=%s and {user_id}=%s and {is_deleted}=0"
+    s_all_todo = f"select id, A.{title}, A.{detail}, A.{created_time}, A.{updated_time}, A.{edit_num}, B.{username} from {todo_table} A {user_table} B where A.{user_id}=B.id and {is_deleted}=0 group by B.{username}"
 
     i_user = f"insert into {user_table} ({username}, {password}, {email}, {age}, {sex}, {city}, {signature}, {created_time}, {updated_time}, {last_login}) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     i_todo = f"insert into {todo_table} ({user_id}, {title}, {detail}, {created_time}, {updated_time}) values (%s, %s, %s, %s, %s)"

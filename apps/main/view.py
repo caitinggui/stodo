@@ -12,7 +12,7 @@ main_bp = Blueprint("main")
 
 @main_bp.get("/")
 async def index(request):
-    logger.info("visit main by get")
+    # logger.info("visit main by get")
     main_url = app.url_for("main.index")
     users = app.url_for("user.UserListView")
     token = app.url_for("user.TokenView")

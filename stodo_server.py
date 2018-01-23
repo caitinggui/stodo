@@ -59,8 +59,9 @@ def initdb():
 @click.option("--host", default="0.0.0.0", help="The interface to bind to.")
 @click.option("--port", default=8090, help="The port to bind to.")
 @click.option('--debug/--no-debug', default=True, help='Run under debug or not.')
-def run(host, port, debug):
-    app.run(host=host, port=port, debug=debug, access_log=False)
+@click.option("--workers", default=1, help="The process that app used")
+def run(host, port, debug, workers):
+    app.run(host=host, port=port, debug=debug, access_log=False, workers=workers)
 
 
 @cli.command(help="ipython命令行环境")

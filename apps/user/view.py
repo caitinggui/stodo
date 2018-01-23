@@ -18,11 +18,6 @@ user_bp = Blueprint("user")
 
 class TokenView(BaseView):
 
-    # TODO 还需添加管理员判断
-    def ifOwnerOrAdmin(self, user_id, real_user_id):
-        if user_id != real_user_id:
-            raise ParamsError("用户id与认证不符")
-
     @staticmethod
     @login_required
     async def get(request, **kwargs):
@@ -87,10 +82,7 @@ class UserListView(BaseView):
                     async with conn.cursor() as cur:
                         await cur.execute(S.s_user_info, (user_id))
                         data = await cur.fetchone()
-                if data:
-                    data.last_login = datetime2str(data.last_login)
-                    data.created_time = datetime2str(data.created_time)
-                    data.updated_time = datetime2str(data.updated_time)
+                data = formatUserInfo(data)
                 return webJson(data=data)
         # 管理员查看信息
         is_admin = False
@@ -106,9 +98,12 @@ class UserListView(BaseView):
                 if user_id_args:
                     await cur.execute(S.s_user_info, (user_id_args))
                     data = await cur.fetchone()
+                    data = formatUserInfo(data)
                 else:
                     await cur.execute(S.s_alluser)
                     data = await cur.fetchall()
+                    for i in range(len(data)):
+                        data[i] = formatUserInfo(data[i])
         return webJson(data=data)
 
     async def post(self, request, **kwargs):
@@ -154,6 +149,22 @@ async def ifNameExist(cur, username):
     if data:
         return True
     return False
+
+
+def getDictKey(d, value):
+    for k, v in d.items():
+        if v == value:
+            return k
+
+
+def formatUserInfo(data):
+    if data:
+        data.last_login = datetime2str(data.last_login)
+        data.created_time = datetime2str(data.created_time)
+        data.updated_time = datetime2str(data.updated_time)
+        data.sex = getDictKey(User.sex.choices, data.sex)
+        return data
+    return {}
 
 
 user_bp.add_route(UserListView.as_view(), "/")
