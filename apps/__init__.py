@@ -5,7 +5,6 @@ import logging
 import logging.config
 
 from sanic import Sanic
-import aioodbc
 
 from configs import configs, log_config
 from utils import Constant, createMysqlPool, AppConfig
